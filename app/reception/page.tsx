@@ -3,8 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { Card, Button, Input, Select, Textarea, StatusPill, TokenBadge, EmptyState } from "@/components/ui";
 import { apiFetch } from "@/lib/api-client";
-import { Search, UserPlus, CalendarPlus, Activity } from "lucide-react";
+import { Search, UserPlus, CalendarPlus, Activity, DollarSign, Printer } from "lucide-react";
 import { RecordVitalsModal } from "@/components/record-vitals-modal";
+import { ConsultationReceiptModal, type ConsultationBillData } from "@/components/consultation-receipt-modal";
+import { CollectPaymentModal } from "@/components/collect-payment-modal";
 
 interface Appointment {
   id: string;
@@ -81,6 +83,8 @@ function QueueTab() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [vitalsAppt, setVitalsAppt] = useState<{ id: string; patientName: string } | null>(null);
+  const [payAppt, setPayAppt] = useState<{ id: string; patientName: string; tokenNumber: number } | null>(null);
+  const [receiptBill, setReceiptBill] = useState<ConsultationBillData | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -113,6 +117,15 @@ function QueueTab() {
       load();
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function openReceipt(appointmentId: string) {
+    try {
+      const res = await apiFetch<{ bill: ConsultationBillData }>(`/api/billing/appointments/${appointmentId}`);
+      setReceiptBill(res.bill);
+    } catch {
+      // Handle error gracefully
     }
   }
 
@@ -155,7 +168,25 @@ function QueueTab() {
                   onClick={() => setVitalsAppt({ id: a.id, patientName: a.patientName || "Patient" })}
                 >
                   <Activity size={14} />
-                  Record Vitals
+                  Vitals
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="flex items-center gap-1.5 text-xs text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/5"
+                  onClick={() => setPayAppt({ id: a.id, patientName: a.patientName || "Patient", tokenNumber: a.tokenNumber })}
+                >
+                  <DollarSign size={14} />
+                  Pay Fee
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="flex items-center gap-1.5 text-xs text-muted hover:text-foreground border border-border"
+                  onClick={() => openReceipt(a.id)}
+                >
+                  <Printer size={14} />
+                  Receipt
                 </Button>
               </div>
             </Card>
@@ -172,6 +203,27 @@ function QueueTab() {
             setVitalsAppt(null);
             load();
           }}
+        />
+      )}
+
+      {payAppt && (
+        <CollectPaymentModal
+          appointmentId={payAppt.id}
+          patientName={payAppt.patientName}
+          tokenNumber={payAppt.tokenNumber}
+          onClose={() => setPayAppt(null)}
+          onSuccess={(bill) => {
+            setPayAppt(null);
+            setReceiptBill(bill);
+            load();
+          }}
+        />
+      )}
+
+      {receiptBill && (
+        <ConsultationReceiptModal
+          bill={receiptBill}
+          onClose={() => setReceiptBill(null)}
         />
       )}
     </div>

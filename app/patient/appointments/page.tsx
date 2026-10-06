@@ -3,8 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { Card, Button, StatusPill, TokenBadge, EmptyState } from "@/components/ui";
 import { apiFetch } from "@/lib/api-client";
-import { Printer } from "lucide-react";
+import { Printer, Receipt } from "lucide-react";
 import { PrescriptionPrintModal, type PrescriptionData } from "@/components/prescription-print-modal";
+import { ConsultationReceiptModal, type ConsultationBillData } from "@/components/consultation-receipt-modal";
 
 interface Appointment {
   id: string;
@@ -23,6 +24,16 @@ export default function PatientAppointmentsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [printData, setPrintData] = useState<PrescriptionData | null>(null);
+  const [receiptBill, setReceiptBill] = useState<ConsultationBillData | null>(null);
+
+  async function loadReceipt(appointmentId: string) {
+    try {
+      const res = await apiFetch<{ bill: ConsultationBillData }>(`/api/billing/appointments/${appointmentId}`);
+      setReceiptBill(res.bill);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Receipt not found.");
+    }
+  }
 
   async function loadPrescription(a: Appointment) {
     try {
@@ -119,16 +130,26 @@ export default function PatientAppointmentsPage() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <StatusPill status={a.status} />
-                    {["REQUESTED", "CONFIRMED"].includes(a.status) && (
+                    <div className="flex items-center gap-1.5">
                       <Button
                         size="sm"
-                        variant="danger"
-                        disabled={busyId === a.id}
-                        onClick={() => cancel(a.id)}
+                        variant="ghost"
+                        className="text-xs text-muted hover:text-foreground border border-border gap-1"
+                        onClick={() => loadReceipt(a.id)}
                       >
-                        Cancel
+                        <Receipt size={13} /> Receipt
                       </Button>
-                    )}
+                      {["REQUESTED", "CONFIRMED"].includes(a.status) && (
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          disabled={busyId === a.id}
+                          onClick={() => cancel(a.id)}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -153,6 +174,14 @@ export default function PatientAppointmentsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusPill status={a.status} />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-xs text-muted hover:text-foreground border border-border gap-1"
+                      onClick={() => loadReceipt(a.id)}
+                    >
+                      <Receipt size={13} /> Receipt
+                    </Button>
                     {a.status === "COMPLETED" && (
                       <Button
                         size="sm"
@@ -173,6 +202,10 @@ export default function PatientAppointmentsPage() {
 
       {printData && (
         <PrescriptionPrintModal data={printData} onClose={() => setPrintData(null)} />
+      )}
+
+      {receiptBill && (
+        <ConsultationReceiptModal bill={receiptBill} onClose={() => setReceiptBill(null)} />
       )}
     </div>
   );
