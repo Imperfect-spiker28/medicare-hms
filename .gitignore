@@ -46,3 +46,7 @@ next-env.d.ts
 # h2 database runtime
 *.mv.db
 *.trace.db
+
+# maven build output
+backend/target/
+tools/

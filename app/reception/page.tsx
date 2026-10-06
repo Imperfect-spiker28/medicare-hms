@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { Card, Button, Input, Select, Textarea, StatusPill, TokenBadge, EmptyState } from "@/components/ui";
 import { apiFetch } from "@/lib/api-client";
-import { Search, UserPlus, CalendarPlus } from "lucide-react";
+import { Search, UserPlus, CalendarPlus, Activity } from "lucide-react";
+import { RecordVitalsModal } from "@/components/record-vitals-modal";
 
 interface Appointment {
   id: string;
@@ -79,6 +80,7 @@ function QueueTab() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [vitalsAppt, setVitalsAppt] = useState<{ id: string; patientName: string } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -140,14 +142,37 @@ function QueueTab() {
                 </p>
               </div>
               <StatusPill status={a.status} />
-              {a.status === "CONFIRMED" && (
-                <Button size="sm" variant="secondary" disabled={busyId === a.id} onClick={() => checkIn(a.id)}>
-                  Check in
+              <div className="flex items-center gap-2">
+                {a.status === "CONFIRMED" && (
+                  <Button size="sm" variant="secondary" disabled={busyId === a.id} onClick={() => checkIn(a.id)}>
+                    Check in
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="flex items-center gap-1.5 text-xs text-primary border border-primary/20 hover:bg-primary/5"
+                  onClick={() => setVitalsAppt({ id: a.id, patientName: a.patientName || "Patient" })}
+                >
+                  <Activity size={14} />
+                  Record Vitals
                 </Button>
-              )}
+              </div>
             </Card>
           ))}
         </div>
+      )}
+
+      {vitalsAppt && (
+        <RecordVitalsModal
+          appointmentId={vitalsAppt.id}
+          patientName={vitalsAppt.patientName}
+          onClose={() => setVitalsAppt(null)}
+          onSaved={() => {
+            setVitalsAppt(null);
+            load();
+          }}
+        />
       )}
     </div>
   );

@@ -104,4 +104,25 @@ public class AppointmentController {
         PrescriptionDto prescription = appointmentService.addPrescription(id, request, principal);
         return ResponseEntity.ok(Map.of("prescription", prescription));
     }
+
+    @GetMapping("/{id}/vitals")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'PATIENT', 'RECEPTIONIST')")
+    public ResponseEntity<Map<String, List<PatientVitalsDto>>> getVitals(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        List<PatientVitalsDto> vitals = appointmentService.getVitals(id, principal);
+        return ResponseEntity.ok(Map.of("vitals", vitals));
+    }
+
+    @PostMapping("/{id}/vitals")
+    @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN', 'DOCTOR')")
+    public ResponseEntity<Map<String, PatientVitalsDto>> recordVitals(
+            @PathVariable UUID id,
+            @Valid @RequestBody RecordVitalsRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        PatientVitalsDto vitals = appointmentService.recordVitals(id, request, principal);
+        return ResponseEntity.ok(Map.of("vitals", vitals));
+    }
 }

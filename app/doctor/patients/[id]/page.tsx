@@ -4,8 +4,19 @@ import { useEffect, useState, useCallback, use } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Textarea, StatusPill, EmptyState } from "@/components/ui";
 import { apiFetch } from "@/lib/api-client";
-import { Plus, Trash2, Printer } from "lucide-react";
+import { Plus, Trash2, Printer, Activity } from "lucide-react";
 import { PrescriptionPrintModal, type PrescriptionData } from "@/components/prescription-print-modal";
+
+interface VitalsItem {
+  id: string;
+  bloodPressure?: string;
+  heartRate?: number;
+  temperature?: number;
+  spo2?: number;
+  weightKg?: number;
+  recordedByName?: string;
+  recordedAt: string;
+}
 
 interface PatientDetail {
   patient: {
@@ -59,10 +70,16 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
   const [savingRx, setSavingRx] = useState(false);
   const [message, setMessage] = useState("");
   const [printData, setPrintData] = useState<PrescriptionData | null>(null);
+  const [vitalsList, setVitalsList] = useState<VitalsItem[]>([]);
 
   const load = useCallback(() => {
     apiFetch<PatientDetail>(`/api/patients/${id}`).then(setData);
-  }, [id]);
+    if (appointmentId) {
+      apiFetch<{ vitals: VitalsItem[] }>(`/api/appointments/${appointmentId}/vitals`)
+        .then((res) => setVitalsList(res.vitals || []))
+        .catch(() => setVitalsList([]));
+    }
+  }, [id, appointmentId]);
 
   useEffect(() => {
     load();
@@ -123,6 +140,64 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
         {patient.phone} &middot; {patient.gender || "—"} &middot; DOB {patient.dateOfBirth || "—"}
         {patient.bloodGroup && <> &middot; Blood group {patient.bloodGroup}</>}
       </p>
+
+      {appointmentId && (
+        <Card className="p-4 mb-6 bg-gradient-to-r from-primary/5 via-surface to-surface border-primary/20">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Activity size={18} className="text-primary" />
+              <h2 className="font-display text-sm font-semibold text-foreground">Pre-consultation Triage Vitals</h2>
+            </div>
+            {vitalsList.length > 0 && (
+              <span className="text-xs text-muted">
+                Recorded {new Date(vitalsList[0].recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {vitalsList[0].recordedByName ? ` by ${vitalsList[0].recordedByName}` : ""}
+              </span>
+            )}
+          </div>
+          {vitalsList.length === 0 ? (
+            <p className="text-xs text-muted">No clinical vitals recorded at triage desk for this appointment.</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="rounded-xl bg-surface border border-border p-2.5 text-center">
+                <span className="text-[11px] text-muted block mb-0.5">Blood Pressure</span>
+                <span className="font-semibold text-foreground text-sm">
+                  {vitalsList[0].bloodPressure || "—"}
+                </span>
+                <span className="text-[10px] text-muted block">mmHg</span>
+              </div>
+              <div className="rounded-xl bg-surface border border-border p-2.5 text-center">
+                <span className="text-[11px] text-muted block mb-0.5">Pulse / Heart</span>
+                <span className="font-semibold text-foreground text-sm">
+                  {vitalsList[0].heartRate != null ? vitalsList[0].heartRate : "—"}
+                </span>
+                <span className="text-[10px] text-muted block">BPM</span>
+              </div>
+              <div className="rounded-xl bg-surface border border-border p-2.5 text-center">
+                <span className="text-[11px] text-muted block mb-0.5">Oxygen (SpO2)</span>
+                <span className={`font-semibold text-sm ${vitalsList[0].spo2 && vitalsList[0].spo2 < 95 ? "text-danger" : "text-foreground"}`}>
+                  {vitalsList[0].spo2 != null ? `${vitalsList[0].spo2}%` : "—"}
+                </span>
+                <span className="text-[10px] text-muted block">Sat</span>
+              </div>
+              <div className="rounded-xl bg-surface border border-border p-2.5 text-center">
+                <span className="text-[11px] text-muted block mb-0.5">Temperature</span>
+                <span className={`font-semibold text-sm ${vitalsList[0].temperature && vitalsList[0].temperature >= 100.4 ? "text-danger" : "text-foreground"}`}>
+                  {vitalsList[0].temperature != null ? `${vitalsList[0].temperature}°F` : "—"}
+                </span>
+                <span className="text-[10px] text-muted block">Body temp</span>
+              </div>
+              <div className="rounded-xl bg-surface border border-border p-2.5 text-center">
+                <span className="text-[11px] text-muted block mb-0.5">Weight</span>
+                <span className="font-semibold text-foreground text-sm">
+                  {vitalsList[0].weightKg != null ? `${vitalsList[0].weightKg} kg` : "—"}
+                </span>
+                <span className="text-[10px] text-muted block">Mass</span>
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
 
       {appointmentId && (
         <div className="grid md:grid-cols-2 gap-4 mb-8">

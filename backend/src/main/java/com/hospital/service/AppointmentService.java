@@ -32,6 +32,7 @@ public class AppointmentService {
     private final PrescriptionRepository prescriptionRepository;
     private final DoctorAvailabilityRepository availabilityRepository;
     private final DoctorLeaveRepository leaveRepository;
+    private final PatientVitalsRepository patientVitalsRepository;
     private final SchedulingEngine schedulingEngine;
     private final AuditLogService auditLogService;
 
@@ -372,6 +373,65 @@ public class AppointmentService {
                 .patientId(p.getPatient().getId())
                 .items(items)
                 .createdAt(p.getCreatedAt())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PatientVitalsDto> getVitals(UUID appointmentId, UserPrincipal principal) {
+        Appointment appt = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found."));
+
+        boolean isPatient = principal.getRole() == Role.PATIENT && appt.getPatient().getId().equals(principal.getId());
+        boolean isDoctor = principal.getRole() == Role.DOCTOR && appt.getDoctor().getId().equals(principal.getId());
+        boolean isStaff = principal.getRole() == Role.ADMIN || principal.getRole() == Role.RECEPTIONIST;
+
+        if (!isPatient && !isDoctor && !isStaff) {
+            throw new ForbiddenException("Not authorized to view vitals.");
+        }
+
+        return patientVitalsRepository.findByAppointmentIdOrderByRecordedAtDesc(appointmentId).stream()
+                .map(this::mapVitalsToDto)
+                .toList();
+    }
+
+    @Transactional
+    public PatientVitalsDto recordVitals(UUID appointmentId, RecordVitalsRequest request, UserPrincipal principal) {
+        Appointment appt = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found."));
+
+        User recordedBy = userRepository.findById(principal.getId()).orElse(null);
+
+        PatientVitals vitals = PatientVitals.builder()
+                .appointment(appt)
+                .patient(appt.getPatient())
+                .recordedBy(recordedBy)
+                .bloodPressure(request.getBloodPressure() != null ? request.getBloodPressure().trim() : null)
+                .heartRate(request.getHeartRate())
+                .temperature(request.getTemperature())
+                .spo2(request.getSpo2())
+                .weightKg(request.getWeightKg())
+                .build();
+
+        vitals = patientVitalsRepository.save(vitals);
+
+        auditLogService.log(principal.getId(), "RECORD_VITALS", "PatientVitals", vitals.getId(),
+                "Recorded clinical vitals for " + appt.getPatient().getFullName() + " (BP: " + vitals.getBloodPressure() + ")");
+
+        return mapVitalsToDto(vitals);
+    }
+
+    private PatientVitalsDto mapVitalsToDto(PatientVitals v) {
+        return PatientVitalsDto.builder()
+                .id(v.getId())
+                .appointmentId(v.getAppointment().getId())
+                .patientId(v.getPatient().getId())
+                .recordedByName(v.getRecordedBy() != null ? v.getRecordedBy().getFullName() : "Clinical Staff")
+                .bloodPressure(v.getBloodPressure())
+                .heartRate(v.getHeartRate())
+                .temperature(v.getTemperature())
+                .spo2(v.getSpo2())
+                .weightKg(v.getWeightKg())
+                .recordedAt(v.getRecordedAt())
                 .build();
     }
 }
