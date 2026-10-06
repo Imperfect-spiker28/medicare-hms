@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback, use } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Textarea, StatusPill, EmptyState } from "@/components/ui";
 import { apiFetch } from "@/lib/api-client";
-import { Plus, Trash2, Printer, Activity } from "lucide-react";
+import { Plus, Trash2, Printer, Activity, FlaskConical, FileCheck2 } from "lucide-react";
 import { PrescriptionPrintModal, type PrescriptionData } from "@/components/prescription-print-modal";
+import { LabReportModal, type LabReportData } from "@/components/lab-report-modal";
 
 interface VitalsItem {
   id: string;
@@ -71,9 +72,22 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
   const [message, setMessage] = useState("");
   const [printData, setPrintData] = useState<PrescriptionData | null>(null);
   const [vitalsList, setVitalsList] = useState<VitalsItem[]>([]);
+  const [labOrders, setLabOrders] = useState<LabReportData[]>([]);
+  const [selectedLabTest, setSelectedLabTest] = useState("Complete Blood Count (CBC)");
+  const [labClinicalNotes, setLabClinicalNotes] = useState("");
+  const [orderingLab, setOrderingLab] = useState(false);
+  const [viewReport, setViewReport] = useState<LabReportData | null>(null);
+  const [resultOrder, setResultOrder] = useState<LabReportData | null>(null);
+  const [resultValue, setResultValue] = useState("");
+  const [refRange, setRefRange] = useState("");
+  const [interpretation, setInterpretation] = useState("NORMAL");
+  const [savingResult, setSavingResult] = useState(false);
 
   const load = useCallback(() => {
     apiFetch<PatientDetail>(`/api/patients/${id}`).then(setData);
+    apiFetch<{ orders: LabReportData[] }>(`/api/labs/patients/${id}`)
+      .then((res) => setLabOrders(res.orders || []))
+      .catch(() => setLabOrders([]));
     if (appointmentId) {
       apiFetch<{ vitals: VitalsItem[] }>(`/api/appointments/${appointmentId}/vitals`)
         .then((res) => setVitalsList(res.vitals || []))
@@ -84,6 +98,53 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     load();
   }, [load]);
+
+  async function orderLabTest(e: React.FormEvent) {
+    e.preventDefault();
+    if (!appointmentId) return;
+    setOrderingLab(true);
+    try {
+      await apiFetch(`/api/labs/appointments/${appointmentId}`, {
+        method: "POST",
+        body: JSON.stringify({
+          testName: selectedLabTest,
+          clinicalNotes: labClinicalNotes.trim() || undefined,
+        }),
+      });
+      setLabClinicalNotes("");
+      setMessage(`Lab investigation '${selectedLabTest}' ordered.`);
+      load();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Failed to order lab test.");
+    } finally {
+      setOrderingLab(false);
+    }
+  }
+
+  async function submitLabResult(e: React.FormEvent) {
+    e.preventDefault();
+    if (!resultOrder) return;
+    setSavingResult(true);
+    try {
+      await apiFetch(`/api/labs/orders/${resultOrder.id}/result`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          resultValue,
+          referenceRange: refRange || undefined,
+          interpretation,
+        }),
+      });
+      setResultOrder(null);
+      setResultValue("");
+      setRefRange("");
+      setMessage("Lab findings and report released.");
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save results.");
+    } finally {
+      setSavingResult(false);
+    }
+  }
 
   async function saveNote(e: React.FormEvent) {
     e.preventDefault();
@@ -289,6 +350,46 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
               </Button>
             </form>
           </Card>
+
+          <Card className="p-5 md:col-span-2">
+            <div className="flex items-center gap-2 mb-3">
+              <FlaskConical size={18} className="text-primary" />
+              <h2 className="font-display text-base text-foreground">Order Diagnostic Investigations</h2>
+            </div>
+            <form onSubmit={orderLabTest} className="grid sm:grid-cols-3 gap-3 items-end">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Select Investigation</label>
+                <select
+                  value={selectedLabTest}
+                  onChange={(e) => setSelectedLabTest(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus:border-primary outline-none"
+                >
+                  <option value="Complete Blood Count (CBC)">Complete Blood Count (CBC)</option>
+                  <option value="Fasting Blood Glucose & HbA1c">Fasting Blood Glucose & HbA1c</option>
+                  <option value="Liver Function Test (LFT)">Liver Function Test (LFT)</option>
+                  <option value="Lipid Profile (Cholesterol & Lipids)">Lipid Profile (Cholesterol & Lipids)</option>
+                  <option value="Kidney Function Test (KFT / Creatinine)">Kidney Function Test (KFT / Creatinine)</option>
+                  <option value="Thyroid Profile (TSH, FT3, FT4)">Thyroid Profile (TSH, FT3, FT4)</option>
+                  <option value="Chest X-Ray PA View">Chest X-Ray PA View</option>
+                  <option value="Urine Routine & Microscopy">Urine Routine & Microscopy</option>
+                  <option value="Serum Electrolytes (Na+, K+, Cl-)">Serum Electrolytes (Na+, K+, Cl-)</option>
+                </select>
+              </div>
+              <div>
+                <Input
+                  label="Clinical Indication / Reason"
+                  placeholder="e.g. Rule out anemia, routine check"
+                  value={labClinicalNotes}
+                  onChange={(e) => setLabClinicalNotes(e.target.value)}
+                />
+              </div>
+              <div>
+                <Button type="submit" size="sm" className="w-full" disabled={orderingLab}>
+                  {orderingLab ? "Ordering…" : "Order Investigation"}
+                </Button>
+              </div>
+            </form>
+          </Card>
         </div>
       )}
 
@@ -376,8 +477,118 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
+      <h2 className="font-display text-lg text-foreground mb-3 flex items-center gap-2">
+        <FlaskConical size={18} className="text-primary" /> Diagnostic Lab Investigations
+      </h2>
+      {labOrders.length === 0 ? (
+        <Card className="mb-8"><EmptyState title="No laboratory investigations ordered" /></Card>
+      ) : (
+        <div className="grid gap-3 mb-8">
+          {labOrders.map((order) => (
+            <Card key={order.id} className="p-4 flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex-1 min-w-[220px]">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="font-medium text-foreground text-sm">{order.testName}</p>
+                  <span className="text-[11px] font-mono text-muted">({order.orderNumber})</span>
+                </div>
+                <p className="text-xs text-muted">
+                  {order.testCategory} &middot; Ordered {new Date(order.createdAt).toLocaleDateString()}
+                  {order.clinicalNotes ? ` &middot; Indication: ${order.clinicalNotes}` : ""}
+                </p>
+                {order.resultValue && (
+                  <div className="mt-2 text-xs bg-muted/10 border border-border/80 rounded-lg p-2">
+                    <span className="font-medium text-foreground">Findings: </span>
+                    <span className="font-mono text-primary">{order.resultValue}</span>
+                    {order.interpretation && (
+                      <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-semibold">
+                        {order.interpretation}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <StatusPill status={order.status} />
+                {order.status !== "COMPLETED" && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-xs text-primary border border-primary/20"
+                    onClick={() => {
+                      setResultOrder(order);
+                      setResultValue("");
+                      setRefRange(order.testName.includes("CBC") ? "Hb: 12-15.5 g/dL, WBC: 4.5-11.0 x10^3/uL" : "Standard Adult Range");
+                      setInterpretation("NORMAL");
+                    }}
+                  >
+                    Enter Result
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="gap-1.5 text-xs"
+                  onClick={() => setViewReport(order)}
+                >
+                  <FileCheck2 size={14} /> Report
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {resultOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-surface border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <h3 className="font-display font-semibold text-foreground mb-1">Enter Lab Findings</h3>
+            <p className="text-xs text-muted mb-4">{resultOrder.testName} &middot; {resultOrder.orderNumber}</p>
+            <form onSubmit={submitLabResult} className="space-y-3">
+              <Textarea
+                label="Observed Result Values"
+                placeholder="e.g. Hb: 13.8 g/dL, Platelets: 220,000 /mcL"
+                required
+                rows={3}
+                value={resultValue}
+                onChange={(e) => setResultValue(e.target.value)}
+              />
+              <Input
+                label="Reference Range"
+                value={refRange}
+                onChange={(e) => setRefRange(e.target.value)}
+              />
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Interpretation</label>
+                <select
+                  value={interpretation}
+                  onChange={(e) => setInterpretation(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus:border-primary outline-none"
+                >
+                  <option value="NORMAL">NORMAL - Within biological limits</option>
+                  <option value="ELEVATED">ELEVATED - Above normal interval</option>
+                  <option value="LOW">LOW - Below normal interval</option>
+                  <option value="CRITICAL">CRITICAL / ABNORMAL</option>
+                </select>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button type="button" variant="secondary" onClick={() => setResultOrder(null)} className="w-1/2">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={savingResult} className="w-1/2">
+                  {savingResult ? "Saving…" : "Save & Release"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {printData && (
         <PrescriptionPrintModal data={printData} onClose={() => setPrintData(null)} />
+      )}
+
+      {viewReport && (
+        <LabReportModal report={viewReport} onClose={() => setViewReport(null)} />
       )}
     </div>
   );
