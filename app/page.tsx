@@ -109,13 +109,13 @@ export default async function HomePage() {
               <Sparkles size={13} /> Irinjalakuda, Thrissur, Kerala
             </div>
 
-            <h1 className="font-display text-4xl sm:text-5xl leading-[1.15] text-foreground mb-5 font-normal tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl font-bold leading-[1.12] tracking-tight text-foreground mb-5">
               Your appointment, your token, your care —{" "}
-              <span className="text-primary-dark font-medium underline decoration-accent/40 decoration-wavy">sorted before you leave.</span>
+              <span className="text-primary">sorted before you leave.</span>
             </h1>
 
-            <p className="text-muted text-base sm:text-lg mb-8 max-w-xl leading-relaxed">
-              No long queues or crowded waiting halls. Book your preferred specialist, track real-time OPD token numbers, and access verified prescriptions and diagnostic lab reports directly from your phone.
+            <p className="text-muted text-base sm:text-lg mb-8 max-w-xl leading-relaxed font-normal">
+              Book your doctor, track real-time OPD token numbers on your mobile, and receive verified digital prescriptions and lab investigation reports — no front desk wait needed.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 mb-10">
@@ -145,42 +145,42 @@ export default async function HomePage() {
 
           {/* Interactive Live OPD Hero Card */}
           <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl blur-lg opacity-20"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-accent/30 rounded-3xl blur-xl opacity-50"></div>
             <Card className="relative p-6 sm:p-7 shadow-xl border-border bg-surface">
               <div className="flex items-center justify-between pb-4 mb-5 border-b border-border">
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider font-semibold text-primary">Live OPD Simulation</p>
-                  <p className="text-xs text-muted">Real-time status at Clinic Chamber 2</p>
+                  <p className="text-[11px] uppercase tracking-wider font-bold text-primary">Live OPD Simulation</p>
+                  <p className="text-xs text-muted">Clinic Chamber 2</p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Consulting Now
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> In Consultation
                 </span>
               </div>
 
-              <div className="flex items-center gap-5 mb-6 bg-primary-tint/40 p-4 rounded-xl border border-primary/10">
-                <TokenBadge number={14} size="lg" />
-                <div className="min-w-0">
-                  <p className="font-display text-xl font-semibold text-foreground">Dr. Priya Varma</p>
+              <div className="flex items-center gap-4 mb-6 bg-primary-tint/50 p-4 rounded-xl border border-primary/20">
+                <TokenBadge number={14} size="md" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-lg font-bold text-foreground">Dr. Priya Varma</p>
                   <p className="text-xs font-medium text-accent-dark">Senior Consultant &middot; Cardiology</p>
                   <p className="text-xs text-muted mt-1 flex items-center gap-1">
-                    <Clock size={12} /> Today, 10:30 AM Slot (Room 204)
+                    <Clock size={12} className="text-primary" /> Today &middot; 10:30 AM Slot (Room 204)
                   </p>
                 </div>
               </div>
 
               {/* Hospital Key Figures */}
               <div className="grid grid-cols-3 gap-3 text-center border-t border-border pt-4">
-                <div className="p-2 rounded-lg bg-background">
-                  <p className="font-display text-2xl font-bold text-primary-dark">{doctors.length}</p>
-                  <p className="text-[11px] text-muted">Specialists</p>
+                <div className="p-2.5 rounded-xl bg-background border border-border/50">
+                  <p className="font-display text-2xl font-bold text-primary">{doctors.length}</p>
+                  <p className="text-[11px] font-medium text-muted">Specialists</p>
                 </div>
-                <div className="p-2 rounded-lg bg-background">
-                  <p className="font-display text-2xl font-bold text-primary-dark">{departments.length}</p>
-                  <p className="text-[11px] text-muted">Departments</p>
+                <div className="p-2.5 rounded-xl bg-background border border-border/50">
+                  <p className="font-display text-2xl font-bold text-primary">{departments.length}</p>
+                  <p className="text-[11px] font-medium text-muted">Departments</p>
                 </div>
-                <div className="p-2 rounded-lg bg-background">
+                <div className="p-2.5 rounded-xl bg-background border border-border/50">
                   <p className="font-display text-2xl font-bold text-accent-dark">15m</p>
-                  <p className="text-[11px] text-muted">Avg. OPD Slot</p>
+                  <p className="text-[11px] font-medium text-muted">Avg. Slot</p>
                 </div>
               </div>
             </Card>
@@ -202,11 +202,14 @@ export default async function HomePage() {
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {departments.map((d) => (
-            <Card key={d.id} className="p-5 hover:border-primary/50 hover:shadow-md transition-all group cursor-default">
-              <div className="w-8 h-8 rounded-lg bg-primary-tint text-primary flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                <HeartPulse size={16} />
+            <Card key={d.id} className="p-5 hover:border-primary hover:shadow-md transition-all group cursor-default bg-surface">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-xl bg-primary-tint text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors shadow-xs">
+                  <HeartPulse size={18} />
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-muted bg-muted/10 px-2 py-0.5 rounded-md">OPD</span>
               </div>
-              <p className="font-display text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">{d.name}</p>
+              <p className="font-display text-base font-bold text-foreground mb-1 group-hover:text-primary transition-colors">{d.name}</p>
               <p className="text-xs text-muted leading-relaxed">{d.description}</p>
             </Card>
           ))}
