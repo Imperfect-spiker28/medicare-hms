@@ -4,6 +4,7 @@ D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\controller\AppointmentController.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\controller\AuthController.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\controller\DepartmentController.java
+D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\controller\DisplayController.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\controller\DoctorController.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\controller\PatientController.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\controller\ReceptionController.java
@@ -16,6 +17,7 @@ D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\dto\CreateDoctorRequest.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\dto\CurrentUserResponse.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\dto\DepartmentDto.java
+D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\dto\DisplayQueueDto.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\dto\DoctorAvailabilityDto.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\dto\DoctorDto.java
 D:\Visual Studio 18\Project\medicare-hms\medicare-hms\backend\src\main\java\com\hospital\dto\ErrorResponse.java

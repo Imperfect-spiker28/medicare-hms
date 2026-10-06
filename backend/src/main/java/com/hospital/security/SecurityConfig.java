@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/departments").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/doctors", "/api/doctors/{id}/slots").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/display/**").permitAll()
                         // Reception & Walk-in
                         .requestMatchers("/api/reception/**").hasAnyRole("RECEPTIONIST", "ADMIN")
                         // Admin-only endpoints

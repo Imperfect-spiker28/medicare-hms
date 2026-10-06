@@ -67,6 +67,12 @@ export default async function HomePage() {
             Medicare Hospital
           </div>
           <div className="flex items-center gap-3">
+            <Link
+              href="/display"
+              className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-teal-200 text-teal-800 bg-teal-50 hover:bg-teal-100 transition-colors flex items-center gap-1.5"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live OPD TV Screen
+            </Link>
             {homeHref ? (
               <Link href={homeHref}>
                 <Button size="sm">Go to dashboard</Button>

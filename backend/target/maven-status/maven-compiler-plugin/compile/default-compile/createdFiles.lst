@@ -35,6 +35,7 @@ com\hospital\config\DataInitializer$1DoctorSeed.class
 com\hospital\dto\CreateDoctorRequest.class
 com\hospital\dto\PrescriptionItemDto.class
 com\hospital\dto\SlotDto.class
+com\hospital\dto\DisplayQueueDto.class
 com\hospital\util\DateTimeUtil$1.class
 com\hospital\dto\AdminStatsResponse$DepartmentStatDto$DepartmentStatDtoBuilder.class
 com\hospital\security\UserPrincipal.class
@@ -56,6 +57,7 @@ com\hospital\dto\PatchAppointmentRequest.class
 com\hospital\service\AuthService.class
 com\hospital\entity\AppointmentStatus.class
 com\hospital\entity\AuditLog$AuditLogBuilder.class
+com\hospital\controller\DisplayController.class
 com\hospital\dto\UserDto.class
 com\hospital\entity\DoctorAvailability.class
 com\hospital\dto\DoctorAvailabilityDto$DoctorAvailabilityDtoBuilder.class
@@ -69,6 +71,7 @@ com\hospital\dto\LoginResponse$LoginResponseBuilder.class
 com\hospital\security\JwtTokenProvider.class
 com\hospital\dto\ConsultationNoteDto$ConsultationNoteDtoBuilder.class
 com\hospital\service\AdminService.class
+com\hospital\dto\DisplayQueueDto$DisplayQueueDtoBuilder.class
 com\hospital\dto\ConsultationNoteDto.class
 com\hospital\entity\Appointment.class
 com\hospital\dto\PrescriptionRequest.class
