@@ -32,8 +32,8 @@ export function LabReportModal({
   const isCompleted = report.status === "COMPLETED";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto">
-      <div className="bg-surface border border-border rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto print:p-0 print:bg-white print:static print:inset-auto">
+      <div className="bg-surface border border-border rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col my-8 print:border-none print:shadow-none print:m-0 print:p-0 print:max-w-none print:w-full print-page-clean">
         {/* Actions bar (hidden in print) */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface/50 print:hidden">
           <div className="flex items-center gap-2">
