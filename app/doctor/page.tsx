@@ -138,20 +138,27 @@ export default function DoctorSchedulePage() {
       ) : (
         <div className="grid gap-3">
           {appointments.map((a) => (
-            <Card key={a.id} className="p-5 flex items-center gap-4 flex-wrap hover:shadow-md transition-shadow">
-              <TokenBadge number={a.tokenNumber} />
-              <div className="flex-1 min-w-[200px]">
-                <Link href={`/doctor/patients/${a.patientId}`} className="font-medium text-foreground hover:text-primary transition-colors">
+            <Card key={a.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3">
+                <TokenBadge number={a.tokenNumber} size="sm" />
+                <div className="sm:hidden flex-1 flex justify-end">
+                  <StatusPill status={a.status} />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <Link href={`/doctor/patients/${a.patientId}`} className="font-semibold text-foreground hover:text-primary transition-colors block">
                   {a.patientName}
                 </Link>
-                <p className="text-sm text-muted">
+                <p className="text-xs sm:text-sm text-muted">
                   {a.startTime} &middot; {a.type.replace("_", " ")} &middot; {a.patientPhone}
                 </p>
-                <p className="text-sm text-muted italic">{a.reasonForVisit}</p>
+                <p className="text-xs text-muted italic mt-0.5">{a.reasonForVisit}</p>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <StatusPill status={a.status} />
-                <div className="flex gap-2 flex-wrap justify-end">
+              <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
+                <div className="hidden sm:block">
+                  <StatusPill status={a.status} />
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap justify-end">
                   {(NEXT_STATUS[a.status] || []).map((opt) => (
                     <Button
                       key={opt.status}

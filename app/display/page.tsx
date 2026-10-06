@@ -115,8 +115,8 @@ export default function OPDDisplayPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none">
       {/* Top Header Board */}
-      <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shadow-lg">
-        <div className="flex items-center gap-4">
+      <header className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+        <div className="flex items-center gap-3">
           <Link
             href="/"
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors bg-slate-800/80 px-2.5 py-1.5 rounded-lg"
@@ -124,21 +124,21 @@ export default function OPDDisplayPage() {
             <ArrowLeft size={14} /> Exit
           </Link>
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
-              <Stethoscope size={24} />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+              <Stethoscope size={22} />
             </div>
             <div>
-              <h1 className="font-display font-bold text-xl text-white tracking-tight">
+              <h1 className="font-display font-bold text-base sm:text-xl text-white tracking-tight leading-tight">
                 Medicare Hospital, Irinjalakuda
               </h1>
-              <p className="text-xs text-teal-400 font-medium tracking-wide uppercase">
+              <p className="text-[10px] sm:text-xs text-teal-400 font-medium tracking-wide uppercase">
                 Outpatient Department &middot; Live Token Queue
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
           <button
             onClick={() => {
               if (!soundEnabled) playChime();

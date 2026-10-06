@@ -123,18 +123,25 @@ export default function PatientAppointmentsPage() {
           ) : (
             <div className="grid gap-3 mb-8">
               {upcoming.map((a) => (
-                <Card key={a.id} className="p-5 flex items-center gap-4">
-                  <TokenBadge number={a.tokenNumber} />
+                <Card key={a.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3">
+                    <TokenBadge number={a.tokenNumber} size="sm" />
+                    <div className="sm:hidden flex-1 flex justify-end">
+                      <StatusPill status={a.status} />
+                    </div>
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground">{a.doctorName}</p>
-                    <p className="text-sm text-muted">
+                    <p className="font-semibold text-foreground">{a.doctorName}</p>
+                    <p className="text-xs sm:text-sm text-muted">
                       {a.departmentName} &middot; {a.date} at {a.startTime}
                     </p>
-                    <p className="text-sm text-muted truncate">{a.reasonForVisit}</p>
+                    <p className="text-xs sm:text-sm text-muted mt-0.5 truncate">{a.reasonForVisit}</p>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <StatusPill status={a.status} />
-                    <div className="flex items-center gap-1.5">
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
+                    <div className="hidden sm:block">
+                      <StatusPill status={a.status} />
+                    </div>
+                    <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
                       <Button
                         size="sm"
                         variant="ghost"
@@ -167,37 +174,39 @@ export default function PatientAppointmentsPage() {
           ) : (
             <div className="grid gap-3">
               {past.map((a) => (
-                <Card key={a.id} className="p-4 flex items-center justify-between gap-4 opacity-90 flex-wrap">
-                  <div className="flex items-center gap-4">
+                <Card key={a.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 opacity-90 hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-3">
                     <TokenBadge number={a.tokenNumber} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground text-sm">{a.doctorName}</p>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm">{a.doctorName}</p>
                       <p className="text-xs text-muted">
                         {a.departmentName} &middot; {a.date} at {a.startTime}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
                     <StatusPill status={a.status} />
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-xs text-muted hover:text-foreground border border-border gap-1"
-                      disabled={receiptLoadingId === a.id}
-                      onClick={() => loadReceipt(a.id)}
-                    >
-                      <Receipt size={13} /> {receiptLoadingId === a.id ? "Loading…" : "Receipt"}
-                    </Button>
-                    {a.status === "COMPLETED" && (
+                    <div className="flex items-center gap-1.5">
                       <Button
                         size="sm"
-                        variant="secondary"
-                        className="gap-1.5"
-                        onClick={() => loadPrescription(a)}
+                        variant="ghost"
+                        className="text-xs text-muted hover:text-foreground border border-border gap-1"
+                        disabled={receiptLoadingId === a.id}
+                        onClick={() => loadReceipt(a.id)}
                       >
-                        <Printer size={14} /> Prescription
+                        <Receipt size={13} /> {receiptLoadingId === a.id ? "Loading…" : "Receipt"}
                       </Button>
-                    )}
+                      {a.status === "COMPLETED" && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="gap-1.5"
+                          onClick={() => loadPrescription(a)}
+                        >
+                          <Printer size={14} /> Prescription
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </Card>
               ))}

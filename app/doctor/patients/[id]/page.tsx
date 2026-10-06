@@ -308,7 +308,7 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
                     value={item.medicine}
                     onChange={(e) => updateItem(i, "medicine", e.target.value)}
                   />
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <Input
                       placeholder="Dosage"
                       required

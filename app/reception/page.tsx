@@ -160,48 +160,57 @@ function QueueTab() {
       ) : (
         <div className="grid gap-3">
           {appointments.map((a) => (
-            <Card key={a.id} className="p-4 flex items-center gap-4 flex-wrap hover:shadow-md transition-shadow">
-              <TokenBadge number={a.tokenNumber} size="sm" />
-              <div className="flex-1 min-w-[200px]">
-                <p className="font-medium text-foreground text-sm">{a.patientName}</p>
+            <Card key={a.id} className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3">
+                <TokenBadge number={a.tokenNumber} size="sm" />
+                <div className="sm:hidden flex-1 flex justify-end">
+                  <StatusPill status={a.status} />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground text-sm">{a.patientName}</p>
                 <p className="text-xs text-muted">
                   {a.doctorName} &middot; {a.departmentName} &middot; {a.startTime}
                 </p>
               </div>
-              <StatusPill status={a.status} />
-              <div className="flex items-center gap-2">
-                {a.status === "CONFIRMED" && (
-                  <Button size="sm" variant="secondary" disabled={busyId === a.id} onClick={() => checkIn(a.id)}>
-                    Check in
+              <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
+                <div className="hidden sm:block">
+                  <StatusPill status={a.status} />
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                  {a.status === "CONFIRMED" && (
+                    <Button size="sm" variant="secondary" disabled={busyId === a.id} onClick={() => checkIn(a.id)}>
+                      Check in
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="flex items-center gap-1.5 text-xs text-primary border border-primary/20 hover:bg-primary/5"
+                    onClick={() => setVitalsAppt({ id: a.id, patientName: a.patientName || "Patient" })}
+                  >
+                    <Activity size={14} />
+                    Vitals
                   </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="flex items-center gap-1.5 text-xs text-primary border border-primary/20 hover:bg-primary/5"
-                  onClick={() => setVitalsAppt({ id: a.id, patientName: a.patientName || "Patient" })}
-                >
-                  <Activity size={14} />
-                  Vitals
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="flex items-center gap-1.5 text-xs text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/5"
-                  onClick={() => setPayAppt({ id: a.id, patientName: a.patientName || "Patient", tokenNumber: a.tokenNumber })}
-                >
-                  <DollarSign size={14} />
-                  Pay Fee
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="flex items-center gap-1.5 text-xs text-muted hover:text-foreground border border-border"
-                  onClick={() => openReceipt(a.id)}
-                >
-                  <Printer size={14} />
-                  Receipt
-                </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="flex items-center gap-1.5 text-xs text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/5"
+                    onClick={() => setPayAppt({ id: a.id, patientName: a.patientName || "Patient", tokenNumber: a.tokenNumber })}
+                  >
+                    <DollarSign size={14} />
+                    Pay Fee
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="flex items-center gap-1.5 text-xs text-muted hover:text-foreground border border-border"
+                    onClick={() => openReceipt(a.id)}
+                  >
+                    <Printer size={14} />
+                    Receipt
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}
