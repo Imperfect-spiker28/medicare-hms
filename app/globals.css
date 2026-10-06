@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F8F7;
+  --surface: #FFFFFF;
+  --foreground: #16302E;
+  --muted: #5C7370;
+  --border: #DDE6E3;
+
+  --primary: #14625E;
+  --primary-dark: #0B4340;
+  --primary-tint: #E4F0EE;
+
+  --accent: #E08E3E;
+  --accent-dark: #C4741F;
+  --accent-tint: #FBEDDC;
+
+  --danger: #B3423A;
+  --danger-tint: #FBE9E7;
+  --success: #2E7D4F;
+  --success-tint: #E7F4EC;
+  --warning: #A8791A;
+  --warning-tint: #FBF1DA;
+
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-tint: var(--primary-tint);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-tint: var(--accent-tint);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --color-success: var(--success);
+  --color-success-tint: var(--success-tint);
+  --color-warning: var(--warning);
+  --color-warning-tint: var(--warning-tint);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Token badge -- the queue-ticket motif used across the site */
+.token-badge {
+  position: relative;
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+}
+.token-badge::before,
+.token-badge::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--background);
+  border-radius: 999px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.token-badge::before { left: -7px; }
+.token-badge::after { right: -7px; }

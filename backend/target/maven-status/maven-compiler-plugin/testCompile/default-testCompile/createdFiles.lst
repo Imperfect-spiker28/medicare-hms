@@ -1,0 +1,4 @@
+com\hospital\HospitalApplicationTests.class
+com\hospital\SchedulingEngineTests.class
+com\hospital\AuthFlowTests.class
+com\hospital\AppointmentWorkflowTests.class
