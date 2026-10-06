@@ -31,8 +31,15 @@ export function DashboardShell({
     router.refresh();
   }
 
+  const initials = fullName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0].toUpperCase())
+    .join("");
+
   const nav = (
-    <nav className="flex flex-col gap-1">
+    <nav className="flex flex-col gap-0.5">
       {navItems.map((item) => {
         const active = pathname === item.href;
         return (
@@ -40,12 +47,15 @@ export function DashboardShell({
             key={item.href}
             href={item.href}
             onClick={() => setOpen(false)}
-            className={`rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
+            className={`relative rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
               active
-                ? "bg-primary text-white"
-                : "text-foreground hover:bg-primary-tint"
+                ? "bg-primary text-white shadow-sm"
+                : "text-foreground hover:bg-primary-tint hover:text-primary-dark"
             }`}
           >
+            {active && (
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-white/40" />
+            )}
             {item.label}
           </Link>
         );
@@ -60,7 +70,11 @@ export function DashboardShell({
         <Link href="/" className="flex items-center gap-2 font-display font-semibold text-primary-dark">
           <Stethoscope size={20} /> Medicare
         </Link>
-        <button onClick={() => setOpen(!open)} aria-label="Toggle menu">
+        <button
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+          className="p-1.5 rounded-lg hover:bg-primary-tint transition-colors cursor-pointer"
+        >
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
@@ -69,7 +83,7 @@ export function DashboardShell({
           {nav}
           <button
             onClick={logout}
-            className="mt-2 w-full flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-danger hover:bg-danger-tint"
+            className="mt-2 w-full flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-danger hover:bg-danger-tint cursor-pointer"
           >
             <LogOut size={16} /> Log out
           </button>
@@ -77,19 +91,36 @@ export function DashboardShell({
       )}
 
       {/* Sidebar (desktop) */}
-      <aside className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-border bg-surface px-4 py-6">
-        <Link href="/" className="flex items-center gap-2 font-display font-semibold text-lg text-primary-dark px-2 mb-8">
-          <Stethoscope size={22} /> Medicare Hospital
+      <aside
+        className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-border px-4 py-6"
+        style={{ background: "linear-gradient(180deg, #ffffff 0%, #eef6f4 100%)" }}
+      >
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 font-display font-semibold text-base text-primary-dark px-2 mb-1">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
+            <Stethoscope size={16} className="text-white" />
+          </div>
+          Medicare Hospital
         </Link>
-        <div className="px-2 mb-4">
-          <p className="text-xs uppercase tracking-wide text-muted">{roleLabel}</p>
-          <p className="font-medium text-foreground truncate">{fullName}</p>
+        <p className="text-[10px] text-muted px-2 mb-7 tracking-wide uppercase">Irinjalakuda · Thrissur</p>
+
+        {/* User card */}
+        <div className="flex items-center gap-3 bg-primary-tint border border-border rounded-xl px-3 py-2.5 mb-6">
+          <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+            {initials}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wide text-muted leading-none mb-0.5">{roleLabel}</p>
+            <p className="font-medium text-foreground text-sm truncate">{fullName}</p>
+          </div>
         </div>
+
         {nav}
-        <div className="mt-auto">
+
+        <div className="mt-auto pt-4 border-t border-border">
           <button
             onClick={logout}
-            className="w-full flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-danger hover:bg-danger-tint"
+            className="w-full flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-danger hover:bg-danger-tint transition-colors cursor-pointer"
           >
             <LogOut size={16} /> Log out
           </button>

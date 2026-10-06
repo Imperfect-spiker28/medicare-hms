@@ -52,17 +52,20 @@ export default function ReceptionPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-foreground mb-6">Front desk</h1>
-      <div className="flex gap-2 mb-6 border-b border-border">
+      <div className="mb-6">
+        <h1 className="font-display text-2xl text-foreground">Front desk</h1>
+        <p className="text-sm text-muted mt-0.5">Manage patient check-ins, walk-ins, and appointments</p>
+      </div>
+      <div className="flex gap-0 mb-6 border-b border-border">
         {[
-          { id: "queue" as Tab, label: "Today's queue" },
-          { id: "walkin" as Tab, label: "Register walk-in" },
-          { id: "book" as Tab, label: "Book appointment" },
+          { id: "queue" as Tab, label: "Today's queue", icon: "🗂️" },
+          { id: "walkin" as Tab, label: "Register walk-in", icon: "🚶" },
+          { id: "book" as Tab, label: "Book appointment", icon: "📅" },
         ].map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            className={`px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer ${
               tab === t.id ? "border-primary text-primary" : "border-transparent text-muted hover:text-foreground"
             }`}
           >
@@ -140,13 +143,24 @@ function QueueTab() {
         />
       </div>
       {loading ? (
-        <p className="text-sm text-muted">Loading…</p>
+        <div className="grid gap-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="bg-surface border border-border rounded-2xl shadow-sm p-4 flex items-center gap-4 animate-pulse">
+              <div className="w-12 h-12 rounded-xl bg-border flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-32 rounded bg-border" />
+                <div className="h-3 w-52 rounded bg-border" />
+              </div>
+              <div className="h-6 w-20 rounded-full bg-border" />
+            </div>
+          ))}
+        </div>
       ) : appointments.length === 0 ? (
-        <Card><EmptyState title="No appointments for this date" /></Card>
+        <Card><EmptyState title="No appointments for this date" hint="Queue is clear — no check-ins yet." /></Card>
       ) : (
         <div className="grid gap-3">
           {appointments.map((a) => (
-            <Card key={a.id} className="p-4 flex items-center gap-4 flex-wrap">
+            <Card key={a.id} className="p-4 flex items-center gap-4 flex-wrap hover:shadow-md transition-shadow">
               <TokenBadge number={a.tokenNumber} size="sm" />
               <div className="flex-1 min-w-[200px]">
                 <p className="font-medium text-foreground text-sm">{a.patientName}</p>

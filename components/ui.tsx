@@ -29,7 +29,7 @@ export function Button({
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
   const sizes = size === "sm" ? "px-3.5 py-1.5 text-sm" : "px-5 py-2.5 text-sm";
   const variants: Record<string, string> = {
     primary: "bg-primary text-white hover:bg-primary-dark",
@@ -172,8 +172,48 @@ export function TokenBadge({ number, size = "md" }: { number: number; size?: "sm
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="text-center py-12 px-6">
+      {/* Subtle medical cross illustration */}
+      <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-primary-tint flex items-center justify-center">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect x="11" y="4" width="6" height="20" rx="2" fill="var(--primary)" opacity="0.35" />
+          <rect x="4" y="11" width="20" height="6" rx="2" fill="var(--primary)" opacity="0.35" />
+        </svg>
+      </div>
       <p className="font-display text-lg text-foreground">{title}</p>
-      {hint && <p className="text-sm text-muted mt-1">{hint}</p>}
+      {hint && <p className="text-sm text-muted mt-1 max-w-xs mx-auto">{hint}</p>}
     </div>
+  );
+}
+
+/** A small metric card used in dashboards */
+export function StatCard({
+  icon,
+  label,
+  value,
+  sub,
+  color = "primary",
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: "primary" | "success" | "warning" | "danger" | "accent";
+}) {
+  const colors: Record<string, string> = {
+    primary: "bg-primary-tint text-primary",
+    success: "bg-success-tint text-success",
+    warning: "bg-warning-tint text-warning",
+    danger: "bg-danger-tint text-danger",
+    accent: "bg-accent-tint text-accent-dark",
+  };
+  return (
+    <Card className="p-5 hover:shadow-md transition-shadow cursor-default">
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${colors[color]}`}>
+        {icon}
+      </div>
+      <p className="font-display text-2xl text-foreground leading-none mb-1">{value}</p>
+      <p className="text-xs text-muted">{label}</p>
+      {sub && <p className="text-xs text-muted mt-0.5 opacity-70">{sub}</p>}
+    </Card>
   );
 }
