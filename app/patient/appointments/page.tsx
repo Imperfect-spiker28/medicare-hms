@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { Card, Button, StatusPill, TokenBadge, EmptyState } from "@/components/ui";
 import { apiFetch } from "@/lib/api-client";
+import { Printer } from "lucide-react";
+import { PrescriptionPrintModal, type PrescriptionData } from "@/components/prescription-print-modal";
 
 interface Appointment {
   id: string;
@@ -20,6 +22,34 @@ export default function PatientAppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [printData, setPrintData] = useState<PrescriptionData | null>(null);
+
+  async function loadPrescription(a: Appointment) {
+    try {
+      const [rxRes, noteRes] = await Promise.all([
+        apiFetch<{ prescriptions: Array<{ items: Array<{ medicine: string; dosage: string; frequency: string; durationDays: number; instructions?: string }> }> }>(`/api/appointments/${a.id}/prescription`),
+        apiFetch<{ notes: Array<{ diagnosis?: string; notes?: string }> }>(`/api/appointments/${a.id}/notes`).catch(() => ({ notes: [] })),
+      ]);
+      const rx = rxRes.prescriptions?.[0];
+      if (!rx || !rx.items?.length) {
+        alert("No prescription recorded for this visit yet.");
+        return;
+      }
+      const note = noteRes.notes?.[0];
+      setPrintData({
+        doctorName: a.doctorName || "Medicare Doctor",
+        doctorDepartment: a.departmentName,
+        patientName: "Patient",
+        date: a.date,
+        tokenNumber: a.tokenNumber,
+        diagnosis: note?.diagnosis,
+        clinicalNotes: note?.notes,
+        items: rx.items,
+      });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Could not load prescription.");
+    }
+  }
 
   const load = useCallback(() => {
     setLoading(true);
@@ -111,20 +141,38 @@ export default function PatientAppointmentsPage() {
           ) : (
             <div className="grid gap-3">
               {past.map((a) => (
-                <Card key={a.id} className="p-4 flex items-center gap-4 opacity-80">
-                  <TokenBadge number={a.tokenNumber} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground text-sm">{a.doctorName}</p>
-                    <p className="text-xs text-muted">
-                      {a.departmentName} &middot; {a.date} at {a.startTime}
-                    </p>
+                <Card key={a.id} className="p-4 flex items-center justify-between gap-4 opacity-90 flex-wrap">
+                  <div className="flex items-center gap-4">
+                    <TokenBadge number={a.tokenNumber} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground text-sm">{a.doctorName}</p>
+                      <p className="text-xs text-muted">
+                        {a.departmentName} &middot; {a.date} at {a.startTime}
+                      </p>
+                    </div>
                   </div>
-                  <StatusPill status={a.status} />
+                  <div className="flex items-center gap-2">
+                    <StatusPill status={a.status} />
+                    {a.status === "COMPLETED" && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="gap-1.5"
+                        onClick={() => loadPrescription(a)}
+                      >
+                        <Printer size={14} /> Prescription
+                      </Button>
+                    )}
+                  </div>
                 </Card>
               ))}
             </div>
           )}
         </>
+      )}
+
+      {printData && (
+        <PrescriptionPrintModal data={printData} onClose={() => setPrintData(null)} />
       )}
     </div>
   );

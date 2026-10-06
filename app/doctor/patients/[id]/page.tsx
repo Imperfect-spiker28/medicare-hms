@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback, use } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Textarea, StatusPill, EmptyState } from "@/components/ui";
 import { apiFetch } from "@/lib/api-client";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Printer } from "lucide-react";
+import { PrescriptionPrintModal, type PrescriptionData } from "@/components/prescription-print-modal";
 
 interface PatientDetail {
   patient: {
@@ -57,6 +58,7 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
   const [savingNote, setSavingNote] = useState(false);
   const [savingRx, setSavingRx] = useState(false);
   const [message, setMessage] = useState("");
+  const [printData, setPrintData] = useState<PrescriptionData | null>(null);
 
   const load = useCallback(() => {
     apiFetch<PatientDetail>(`/api/patients/${id}`).then(setData);
@@ -256,19 +258,51 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
         <Card><EmptyState title="No prescriptions recorded" /></Card>
       ) : (
         <div className="grid gap-3">
-          {prescriptions.map((rx) => (
-            <Card key={rx.id} className="p-4">
-              <ul className="text-sm text-foreground space-y-1">
-                {rx.items.map((item, i) => (
-                  <li key={i}>
-                    {item.medicine} — {item.dosage}, {item.frequency}, {item.durationDays} days
-                  </li>
-                ))}
-              </ul>
-              <p className="text-xs text-muted mt-1">{new Date(rx.createdAt).toLocaleString()}</p>
-            </Card>
-          ))}
+          {prescriptions.map((rx) => {
+            const relatedNote = allNotes.find((n) => n.appointmentId === rx.appointmentId);
+            const relatedAppt = appointments.find((a) => a.id === rx.appointmentId);
+            return (
+              <Card key={rx.id} className="p-4">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <ul className="text-sm text-foreground space-y-1 flex-1">
+                    {rx.items.map((item, i) => (
+                      <li key={i}>
+                        {item.medicine} — {item.dosage}, {item.frequency}, {item.durationDays} days
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="gap-1.5"
+                    onClick={() =>
+                      setPrintData({
+                        doctorName: relatedAppt?.doctorName || "Dr. Suresh Nair",
+                        doctorDepartment: relatedAppt?.departmentName || "Cardiology",
+                        patientName: patient.fullName,
+                        patientCode: `MCH-${patient.id.slice(0, 8).toUpperCase()}`,
+                        patientPhone: patient.phone,
+                        patientGender: patient.gender,
+                        patientAgeOrDob: patient.dateOfBirth,
+                        date: new Date(rx.createdAt).toLocaleDateString(),
+                        diagnosis: relatedNote?.diagnosis,
+                        clinicalNotes: relatedNote?.notes,
+                        items: rx.items,
+                      })
+                    }
+                  >
+                    <Printer size={14} /> Print Rx
+                  </Button>
+                </div>
+                <p className="text-xs text-muted mt-1">{new Date(rx.createdAt).toLocaleString()}</p>
+              </Card>
+            );
+          })}
         </div>
+      )}
+
+      {printData && (
+        <PrescriptionPrintModal data={printData} onClose={() => setPrintData(null)} />
       )}
     </div>
   );
