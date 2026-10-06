@@ -42,3 +42,7 @@ next-env.d.ts
 -e 
 # local JSON data store
 /data/db.json
+
+# h2 database runtime
+*.mv.db
+*.trace.db
