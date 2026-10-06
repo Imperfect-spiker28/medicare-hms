@@ -25,13 +25,17 @@ export default function PatientAppointmentsPage() {
   const [error, setError] = useState("");
   const [printData, setPrintData] = useState<PrescriptionData | null>(null);
   const [receiptBill, setReceiptBill] = useState<ConsultationBillData | null>(null);
+  const [receiptLoadingId, setReceiptLoadingId] = useState<string | null>(null);
 
   async function loadReceipt(appointmentId: string) {
+    setReceiptLoadingId(appointmentId);
     try {
       const res = await apiFetch<{ bill: ConsultationBillData }>(`/api/billing/appointments/${appointmentId}`);
       setReceiptBill(res.bill);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Receipt not found.");
+    } finally {
+      setReceiptLoadingId(null);
     }
   }
 
@@ -135,9 +139,10 @@ export default function PatientAppointmentsPage() {
                         size="sm"
                         variant="ghost"
                         className="text-xs text-muted hover:text-foreground border border-border gap-1"
+                        disabled={receiptLoadingId === a.id}
                         onClick={() => loadReceipt(a.id)}
                       >
-                        <Receipt size={13} /> Receipt
+                        <Receipt size={13} /> {receiptLoadingId === a.id ? "Loading…" : "Receipt"}
                       </Button>
                       {["REQUESTED", "CONFIRMED"].includes(a.status) && (
                         <Button
@@ -178,9 +183,10 @@ export default function PatientAppointmentsPage() {
                       size="sm"
                       variant="ghost"
                       className="text-xs text-muted hover:text-foreground border border-border gap-1"
+                      disabled={receiptLoadingId === a.id}
                       onClick={() => loadReceipt(a.id)}
                     >
-                      <Receipt size={13} /> Receipt
+                      <Receipt size={13} /> {receiptLoadingId === a.id ? "Loading…" : "Receipt"}
                     </Button>
                     {a.status === "COMPLETED" && (
                       <Button
