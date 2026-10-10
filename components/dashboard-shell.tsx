@@ -47,16 +47,16 @@ export function DashboardShell({
             key={item.href}
             href={item.href}
             onClick={() => setOpen(false)}
-            className={`relative rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
+            className={`relative flex items-center rounded-xl px-3.5 py-2.5 text-xs font-medium transition-all ${
               active
-                ? "bg-primary text-white shadow-sm"
-                : "text-foreground hover:bg-primary-tint hover:text-primary-dark"
+                ? "bg-primary text-white shadow-xs font-semibold"
+                : "text-muted hover:text-foreground hover:bg-surface-cream/80"
             }`}
           >
             {active && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-white/40" />
+              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-accent" />
             )}
-            {item.label}
+            <span className={active ? "pl-2" : ""}>{item.label}</span>
           </Link>
         );
       })}
@@ -92,42 +92,41 @@ export function DashboardShell({
 
       {/* Sidebar (desktop) */}
       <aside
-        className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-border px-4 py-6"
-        style={{ background: "linear-gradient(180deg, #ffffff 0%, #eef6f4 100%)" }}
+        className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-border px-4 py-6 bg-surface/80 backdrop-blur-sm"
       >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 font-display font-semibold text-base text-primary-dark px-2 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
-            <Stethoscope size={16} className="text-white" />
+          <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+            <Stethoscope size={16} />
           </div>
-          Medicare Hospital
+          <span className="tracking-tight">Medicare Hospital</span>
         </Link>
-        <p className="text-[10px] text-muted px-2 mb-7 tracking-wide uppercase">Irinjalakuda · Thrissur</p>
+        <p className="text-[10px] text-muted px-2 mb-6 tracking-wider uppercase font-medium">Irinjalakuda &middot; Thrissur</p>
 
         {/* User card */}
-        <div className="flex items-center gap-3 bg-primary-tint border border-border rounded-xl px-3 py-2.5 mb-6">
-          <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+        <div className="flex items-center gap-3 bg-surface-cream/80 border border-border/80 rounded-xl px-3 py-2.5 mb-6">
+          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-display flex items-center justify-center text-xs font-bold flex-shrink-0 border border-primary/20">
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wide text-muted leading-none mb-0.5">{roleLabel}</p>
-            <p className="font-medium text-foreground text-sm truncate">{fullName}</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted font-medium leading-none mb-1">{roleLabel}</p>
+            <p className="font-medium text-foreground text-xs truncate">{fullName}</p>
           </div>
         </div>
 
         {nav}
 
-        <div className="mt-auto pt-4 border-t border-border">
+        <div className="mt-auto pt-4 border-t border-border/70">
           <button
             onClick={logout}
-            className="w-full flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium text-danger hover:bg-danger-tint transition-colors cursor-pointer"
+            className="w-full flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-muted hover:text-danger hover:bg-danger-tint transition-colors cursor-pointer"
           >
-            <LogOut size={16} /> Log out
+            <LogOut size={14} /> Log out
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 p-4 md:p-8 max-w-6xl w-full mx-auto">{children}</main>
+      <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">{children}</main>
     </div>
   );
 }

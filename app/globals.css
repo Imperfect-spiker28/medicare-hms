@@ -1,40 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F7F8F7;
+  --background: #F8F7F4;
   --surface: #FFFFFF;
-  --foreground: #16302E;
-  --muted: #5C7370;
-  --border: #DDE6E3;
+  --surface-cream: #F3EFEA;
+  --foreground: #142826;
+  --muted: #5F7370;
+  --border: #E3DDD4;
 
-  --primary: #14625E;
-  --primary-dark: #0B4340;
-  --primary-tint: #E4F0EE;
+  --primary: #125450;
+  --primary-dark: #0A3633;
+  --primary-tint: #E6EFEA;
 
-  --accent: #E08E3E;
-  --accent-dark: #C4741F;
-  --accent-tint: #FBEDDC;
+  --terracotta: #C86D51;
+  --terracotta-dark: #A95339;
+  --terracotta-tint: #F9ECE6;
 
-  --danger: #B3423A;
-  --danger-tint: #FBE9E7;
-  --success: #2E7D4F;
-  --success-tint: #E7F4EC;
-  --warning: #A8791A;
-  --warning-tint: #FBF1DA;
+  --accent: #D98236;
+  --accent-dark: #B9661E;
+  --accent-tint: #FDF1E2;
+
+  --danger: #B83A30;
+  --danger-tint: #FBEBE9;
+  --success: #267347;
+  --success-tint: #E5F3EB;
+  --warning: #9E7014;
+  --warning-tint: #FDF4DE;
 
   --font-display: var(--font-display-custom), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-editorial: var(--font-editorial), Georgia, serif;
   --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-cream: var(--surface-cream);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-dark: var(--primary-dark);
   --color-primary-tint: var(--primary-tint);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-dark: var(--terracotta-dark);
+  --color-terracotta-tint: var(--terracotta-tint);
   --color-accent: var(--accent);
   --color-accent-dark: var(--accent-dark);
   --color-accent-tint: var(--accent-tint);
@@ -46,6 +56,7 @@
   --color-warning-tint: var(--warning-tint);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
+  --font-editorial: var(--font-editorial);
 }
 
 * {
@@ -61,6 +72,10 @@ body {
 h1, h2, h3, .font-display {
   font-family: var(--font-display), sans-serif;
   letter-spacing: -0.02em;
+}
+
+.font-editorial {
+  font-family: var(--font-editorial), Georgia, serif;
 }
 
 :focus-visible {
