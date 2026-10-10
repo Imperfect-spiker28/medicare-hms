@@ -45,15 +45,21 @@ export default function OPDDisplayPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Poll live queue every 6 seconds
+  // Poll live queue every 6 seconds with bounded interval
+  const dataRef = useRef<DisplayData | null>(null);
+  dataRef.current = data;
+
   useEffect(() => {
     let ignore = false;
+    let isFetching = false;
+
     function fetchQueue() {
+      if (isFetching) return;
+      isFetching = true;
       apiFetch<DisplayData>("/api/display/queue")
         .then((res) => {
           if (ignore) return;
-          // Check if token changed to play chime
-          if (soundEnabled && data) {
+          if (soundEnabled && dataRef.current) {
             let hasChanged = false;
             res.queues.forEach((q) => {
               const old = prevTokensRef.current[q.doctorId];
@@ -72,7 +78,12 @@ export default function OPDDisplayPage() {
           }
           setData(res);
         })
-        .catch(() => {});
+        .catch(() => {
+          // Bounded backoff: interval continues at 6000ms without rapid retry storm
+        })
+        .finally(() => {
+          isFetching = false;
+        });
     }
 
     fetchQueue();
@@ -81,7 +92,7 @@ export default function OPDDisplayPage() {
       ignore = true;
       clearInterval(timer);
     };
-  }, [soundEnabled, data]);
+  }, [soundEnabled]);
 
   function playChime() {
     try {

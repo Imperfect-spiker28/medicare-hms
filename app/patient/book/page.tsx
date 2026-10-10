@@ -42,14 +42,31 @@ export default function BookAppointmentPage() {
   const [slotsLoading, setSlotsLoading] = useState(false);
 
   useEffect(() => {
-    apiFetch<{ departments: Department[] }>("/api/departments").then((d) =>
-      setDepartments(d.departments)
-    );
+    let ignore = false;
+    Promise.all([
+      apiFetch<{ departments: Department[] }>("/api/departments").catch(() => ({ departments: [] })),
+      apiFetch<{ doctors: Doctor[] }>("/api/doctors").catch(() => ({ doctors: [] })),
+    ]).then(([deptData, docData]) => {
+      if (ignore) return;
+      setDepartments(deptData.departments || []);
+      setDoctors(docData.doctors || []);
+    });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   useEffect(() => {
-    const url = departmentId ? `/api/doctors?departmentId=${departmentId}` : "/api/doctors";
-    apiFetch<{ doctors: Doctor[] }>(url).then((d) => setDoctors(d.doctors));
+    if (!departmentId) return;
+    let ignore = false;
+    apiFetch<{ doctors: Doctor[] }>(`/api/doctors?departmentId=${departmentId}`)
+      .then((d) => {
+        if (!ignore) setDoctors(d.doctors || []);
+      })
+      .catch(() => {});
+    return () => {
+      ignore = true;
+    };
   }, [departmentId]);
 
   useEffect(() => {

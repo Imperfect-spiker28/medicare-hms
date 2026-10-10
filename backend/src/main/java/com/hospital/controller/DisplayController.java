@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.util.*;
 
@@ -25,11 +27,12 @@ public class DisplayController {
     private final AppointmentRepository appointmentRepository;
 
     @GetMapping("/queue")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> getLiveQueue(
             @RequestParam(required = false) String date
     ) {
         LocalDate targetDate = (date != null && !date.isBlank()) ? LocalDate.parse(date) : LocalDate.now();
-        List<DoctorProfile> doctors = doctorProfileRepository.findAll();
+        List<DoctorProfile> doctors = doctorProfileRepository.findAllActiveWithDetails();
         List<Appointment> todaysAppointments = appointmentRepository.findByDateOrderByStartTimeAsc(targetDate);
 
         Map<UUID, List<Appointment>> apptsByDoctor = new HashMap<>();

@@ -19,8 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,8 +64,19 @@ public class DoctorService {
 
     @Transactional(readOnly = true)
     public List<DoctorDto> getAllDoctorsForAdmin() {
-        return doctorProfileRepository.findAll().stream()
-                .map(this::mapToAdminDto)
+        List<DoctorProfile> profiles = doctorProfileRepository.findAllForAdminWithDetails();
+        if (profiles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<UUID> docIds = profiles.stream().map(DoctorProfile::getUserId).toList();
+        Map<UUID, List<DoctorAvailability>> availMap = availabilityRepository.findByDoctorProfileUserIdIn(docIds).stream()
+                .collect(java.util.stream.Collectors.groupingBy(a -> a.getDoctorProfile().getUserId()));
+        Map<UUID, List<DoctorLeave>> leaveMap = leaveRepository.findByDoctorProfileUserIdIn(docIds).stream()
+                .collect(java.util.stream.Collectors.groupingBy(l -> l.getDoctorProfile().getUserId()));
+
+        return profiles.stream()
+                .map(p -> mapToAdminDtoBatched(p, availMap.getOrDefault(p.getUserId(), Collections.emptyList()), leaveMap.getOrDefault(p.getUserId(), Collections.emptyList())))
                 .toList();
     }
 
@@ -163,6 +177,39 @@ public class DoctorService {
                 .toList();
 
         List<String> leaves = leaveRepository.findByDoctorProfileUserId(profile.getUserId()).stream()
+                .map(l -> l.getLeaveDate().toString())
+                .toList();
+
+        return DoctorDto.builder()
+                .userId(profile.getUser().getId())
+                .id(profile.getUser().getId())
+                .fullName(profile.getUser().getFullName())
+                .email(profile.getUser().getEmail())
+                .isActive(profile.getUser().getIsActive())
+                .departmentId(profile.getDepartment() != null ? profile.getDepartment().getId() : null)
+                .departmentName(profile.getDepartment() != null ? profile.getDepartment().getName() : null)
+                .specialization(profile.getSpecialization())
+                .qualification(profile.getQualification())
+                .registrationNo(profile.getRegistrationNo())
+                .consultationFee(profile.getConsultationFee())
+                .yearsExperience(profile.getYearsExperience())
+                .bio(profile.getBio())
+                .availability(availDtos)
+                .onLeaveDates(leaves)
+                .build();
+    }
+
+    private DoctorDto mapToAdminDtoBatched(DoctorProfile profile, List<DoctorAvailability> availabilities, List<DoctorLeave> leavesList) {
+        List<DoctorAvailabilityDto> availDtos = availabilities.stream()
+                .map(a -> DoctorAvailabilityDto.builder()
+                        .day(a.getDay())
+                        .startTime(DateTimeUtil.formatTime(a.getStartTime()))
+                        .endTime(DateTimeUtil.formatTime(a.getEndTime()))
+                        .slotMinutes(a.getSlotMinutes())
+                        .build())
+                .toList();
+
+        List<String> leaves = leavesList.stream()
                 .map(l -> l.getLeaveDate().toString())
                 .toList();
 

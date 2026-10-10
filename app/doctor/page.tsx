@@ -80,36 +80,32 @@ export default function DoctorWorkspacePage() {
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch current user & doctor profile details
+  // Fetch current user & doctor profile details concurrently
   useEffect(() => {
-    apiFetch<{ user: CurrentUser }>("/api/auth/me")
-      .then(async (res) => {
-        if (res?.user?.id) {
-          try {
-            const docRes = await apiFetch<{ doctors: DoctorInfo[] }>("/api/doctors");
-            const found = (docRes.doctors || []).find((d) => d.id === res.user.id);
-            if (found) {
-              setDoctorInfo(found);
-            } else {
-              setDoctorInfo({
-                id: res.user.id,
-                fullName: res.user.fullName,
-                specialization: "Consultant Physician",
-                department: { id: "1", name: "Clinical Outpatient Care" },
-              });
-            }
-          } catch {
-            setDoctorInfo({
-              id: res.user.id,
-              fullName: res.user.fullName,
-              specialization: "Consultant Physician",
-            });
-          }
+    let ignore = false;
+    Promise.all([
+      apiFetch<{ user: CurrentUser }>("/api/auth/me").catch(() => null),
+      apiFetch<{ doctors: DoctorInfo[] }>("/api/doctors").catch(() => null),
+    ]).then(([userRes, docRes]) => {
+      if (ignore) return;
+      if (userRes?.user?.id) {
+        const found = (docRes?.doctors || []).find((d) => d.id === userRes.user.id);
+        if (found) {
+          setDoctorInfo(found);
+        } else {
+          setDoctorInfo({
+            id: userRes.user.id,
+            fullName: userRes.user.fullName,
+            specialization: "Consultant Physician",
+            department: { id: "1", name: "Clinical Outpatient Care" },
+          });
         }
-      })
-      .catch(() => {
-        // Fallback placeholder if session fetch is unavailable
-      });
+      }
+    });
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const load = useCallback(() => {
@@ -121,21 +117,8 @@ export default function DoctorWorkspacePage() {
   }, [date]);
 
   useEffect(() => {
-    let ignore = false;
-    apiFetch<{ appointments: Appointment[] }>(`/api/appointments?date=${date}`)
-      .then((d) => {
-        if (!ignore) setAppointments(d.appointments || []);
-      })
-      .catch(() => {
-        if (!ignore) setAppointments([]);
-      })
-      .finally(() => {
-        if (!ignore) setLoading(false);
-      });
-    return () => {
-      ignore = true;
-    };
-  }, [date]);
+    load();
+  }, [load]);
 
   async function updateStatus(id: string, status: string) {
     setBusyId(id);

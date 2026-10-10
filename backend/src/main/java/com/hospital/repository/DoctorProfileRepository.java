@@ -20,6 +20,9 @@ public interface DoctorProfileRepository extends JpaRepository<DoctorProfile, UU
     @Query("SELECT d FROM DoctorProfile d JOIN FETCH d.user u LEFT JOIN FETCH d.department dept WHERE u.isActive = true AND d.department.id = :deptId")
     List<DoctorProfile> findActiveByDepartmentId(@Param("deptId") UUID deptId);
 
+    @Query("SELECT d FROM DoctorProfile d JOIN FETCH d.user u LEFT JOIN FETCH d.department dept")
+    List<DoctorProfile> findAllForAdminWithDetails();
+
     @Query("SELECT d FROM DoctorProfile d LEFT JOIN FETCH d.availability WHERE d.userId = :id")
     Optional<DoctorProfile> findByIdWithAvailability(@Param("id") UUID id);
 }

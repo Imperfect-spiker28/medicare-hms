@@ -84,15 +84,19 @@ export default function PatientRecordPage({ params }: { params: Promise<{ id: st
   const [savingResult, setSavingResult] = useState(false);
 
   const load = useCallback(() => {
-    apiFetch<PatientDetail>(`/api/patients/${id}`).then(setData);
-    apiFetch<{ orders: LabReportData[] }>(`/api/labs/patients/${id}`)
-      .then((res) => setLabOrders(res.orders || []))
-      .catch(() => setLabOrders([]));
-    if (appointmentId) {
-      apiFetch<{ vitals: VitalsItem[] }>(`/api/appointments/${appointmentId}/vitals`)
-        .then((res) => setVitalsList(res.vitals || []))
-        .catch(() => setVitalsList([]));
-    }
+    Promise.all([
+      apiFetch<PatientDetail>(`/api/patients/${id}`),
+      apiFetch<{ orders: LabReportData[] }>(`/api/labs/patients/${id}`).catch(() => ({ orders: [] })),
+      appointmentId
+        ? apiFetch<{ vitals: VitalsItem[] }>(`/api/appointments/${appointmentId}/vitals`).catch(() => ({ vitals: [] }))
+        : Promise.resolve({ vitals: [] }),
+    ])
+      .then(([patData, labData, vitalsData]) => {
+        setData(patData);
+        setLabOrders(labData.orders || []);
+        setVitalsList(vitalsData.vitals || []);
+      })
+      .catch(() => {});
   }, [id, appointmentId]);
 
   useEffect(() => {

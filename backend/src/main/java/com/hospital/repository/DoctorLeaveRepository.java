@@ -11,5 +11,6 @@ import java.util.UUID;
 @Repository
 public interface DoctorLeaveRepository extends JpaRepository<DoctorLeave, UUID> {
     List<DoctorLeave> findByDoctorProfileUserId(UUID doctorId);
+    List<DoctorLeave> findByDoctorProfileUserIdIn(List<UUID> doctorIds);
     boolean existsByDoctorProfileUserIdAndLeaveDate(UUID doctorId, LocalDate leaveDate);
 }
